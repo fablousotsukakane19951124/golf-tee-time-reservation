@@ -7,8 +7,8 @@ const my_info = {
     url: "https://cityofla.ezlinksgolf.com/",
   },
   real: {
-    name: "la-134554",
-    passwd: "hrx7xbe!epj.wkz3DBK",
+    name: "test",
+    passwd: "testtest",
     url: "https://cityoflapcp.ezlinksgolf.com/",
   },
 };
