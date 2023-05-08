@@ -13,6 +13,7 @@ const my_info = {
   },
 };
 
+const min_wait_time = 1000;
 const default_wait_time = 3000;
 const medium_wait_time = 5000;
 
@@ -54,11 +55,26 @@ async function main() {
     const day = thisWeekend.getDate().toString().padStart(2, "0");
     const formattedDate = `${month}/${day}/${year}`;
     await dateInput.type(formattedDate);
+    // await dateInput.type("05/16/2023");
 
     await Promise.all([
       page.click("button[type=submit]"),
       page.waitForNavigation({ waitUntil: "networkidle0" }),
     ]);
+
+    await wait(default_wait_time);
+    await page.hover("div.ngrs-handle-min");
+    await wait(min_wait_time);
+    await page.mouse.down();
+    await page.mouse.move(105, 19);
+    await page.mouse.up();
+
+    await wait(default_wait_time);
+    await page.hover("div.ngrs-handle-max");
+    await wait(min_wait_time);
+    await page.mouse.down();
+    await page.mouse.move(155, 19);
+    await page.mouse.up();
 
     await wait(default_wait_time);
     await page.evaluate(() => {
@@ -121,9 +137,31 @@ async function main() {
             el.click()
           );
         } catch (err) {
-          await wait(medium_wait_time);
-          main();
-          return;
+          try {
+            await wait(default_wait_time);
+            await page.evaluate(() => {
+              const elems = Array.from(
+                document.querySelectorAll("div.search-select-div a")
+              );
+
+              elems.map((td) => {
+                var txt = td.innerHTML;
+
+                if (txt == "Select All") {
+                  td.click();
+                }
+              });
+            });
+            await wait(default_wait_time);
+            await page.$eval(".player-info button:last-child", (el) =>
+              el.click()
+            );
+          } catch (e) {
+            await browser.close();
+            await wait(medium_wait_time);
+            main();
+            return;
+          }
         }
       }
     }
@@ -137,7 +175,6 @@ async function main() {
         ".confirm-modal div.ng-binding",
         (el) => el.innerHTML
       );
-      console.log(searchValue);
       if (searchValue.indexOf("You Have An Existing Reservation") >= 0) {
         console.log("You've already reserved.");
         await browser.close();
@@ -163,12 +200,16 @@ async function main() {
     await wait(default_wait_time);
 
     await browser.close();
+    await wait(medium_wait_time);
+    main();
   } catch (err) {
     console.log(err);
-    wait(2000);
-    // main();
+    try {
+      await browser.close();
+      await wait(medium_wait_time);
+    } catch {}
+    main();
   }
-  main();
 }
 
 async function wait(time) {
