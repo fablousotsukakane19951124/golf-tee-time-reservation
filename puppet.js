@@ -16,6 +16,7 @@ const my_info = {
 const min_wait_time = 1000;
 const default_wait_time = 3000;
 const medium_wait_time = 5000;
+const retry_time = 1000 * 60 * 10;
 
 async function main() {
   try {
@@ -158,7 +159,7 @@ async function main() {
             );
           } catch (e) {
             await browser.close();
-            await wait(medium_wait_time);
+            await wait(retry_time);
             main();
             return;
           }
@@ -200,13 +201,13 @@ async function main() {
     await wait(default_wait_time);
 
     await browser.close();
-    await wait(medium_wait_time);
+    await wait(retry_time);
     main();
   } catch (err) {
     console.log(err);
     try {
       await browser.close();
-      await wait(medium_wait_time);
+      await wait(retry_time);
     } catch {}
     main();
   }
